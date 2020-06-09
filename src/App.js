@@ -14,27 +14,32 @@ function App() {
 
   async function handleAddRepository() {
     const response = await api.post("/repositories", {
-      title: `Novo projeto adicionado do front ${Date.now()}`,
+      title: `Desafio ReactJS`,
       url: "https://github.com/rasfdeveloper/teste",
       techs: ["NodeJS", "ReactJS"]
     });
 
     const repository = response.data;
 
-    setRepositories([...repositories, repository]);
+    return setRepositories([...repositories, repository]);
   }
 
   async function handleRemoveRepository(id) {
-    const { data } = await api.get(`/repositories`);
+    await api.delete(`/repositories/${id}`);
+    const repositoryIndex = repositories.findIndex(
+      repository => repository.id === id
+    );
 
-    const repositoryIndex = data.find(r => r.id === id);
-
-    if (repositoryIndex) {
-      await api.delete(`/repositories/${id}`);
-      await api.get("/repositories").then(response => {
-        setRepositories(response.data);
-      });
+    if (repositoryIndex < 0) {
+      console.error("Repositório não encontrado");
+      return;
     }
+
+    const newRepositories = repositories.filter(
+      repository => repository.id !== id
+    );
+
+    setRepositories(newRepositories);
   }
 
   return (
